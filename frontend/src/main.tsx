@@ -6,14 +6,14 @@ import {
   DynamicContextProvider,
   EvmNetwork,
 } from "@dynamic-labs/sdk-react-core";
-import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 import { createConfig, WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http } from "viem";
-import { morphHolesky } from "viem/chains";
+import { baseSepolia } from "viem/chains";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { coinbaseWallet } from "wagmi/connectors";
 
 import { CoinsProvider } from "config/context";
 import {
@@ -22,31 +22,39 @@ import {
   LeaderboardPage,
   ReactionGame,
   NumberMemory,
-  DndGame
+  DndGame,
 } from "./pages";
-import { GalleryPage } from "./pages/Gallery"; // Correct import here
+import { GalleryPage } from "./pages/Gallery";
 import { ChainId } from "config/chains";
 
+// Define Base Sepolia network for Dynamic Labs
 const evmNetworks: EvmNetwork[] = [
   {
-    blockExplorerUrls: [morphHolesky.blockExplorers.default.url],
-    chainId: ChainId.Morph,
-    chainName: "Morph Holesky Testnet",
-    name: "Morph Holesky Testnet",
-    iconUrls: ["https://app.dynamic.xyz/assets/networks/eth.svg"],
+    blockExplorerUrls: [baseSepolia.blockExplorers.default.url],
+    chainId: baseSepolia.id,
+    chainName: "Base Sepolia",
+    name: "Base Sepolia",
+    iconUrls: ["https://app.dynamic.xyz/assets/networks/base.svg"],
     nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
-    networkId: morphHolesky.id,
+    networkId: baseSepolia.id,
     privateCustomerRpcUrls: [],
-    rpcUrls: [morphHolesky.rpcUrls.default.http[0]],
-    vanityName: "Morph Holesky",
+    rpcUrls: [baseSepolia.rpcUrls.default.http[0]],
+    vanityName: "Base Sepolia",
   },
 ];
 
+// Configure Wagmi with Coinbase Wallet connector
+const coinbaseConnector = coinbaseWallet({
+  appName: "PlayHazards",
+  chains: [baseSepolia],
+  preference: "smartWalletOnly", 
+});
+
 const config = createConfig({
-  chains: [morphHolesky],
-  multiInjectedProviderDiscovery: false,
+  chains: [baseSepolia],
+  connectors: [coinbaseConnector],
   transports: {
-    [morphHolesky.id]: http(),
+    [baseSepolia.id]: http(),
   },
 });
 
@@ -79,27 +87,26 @@ const router = createBrowserRouter([
   },
   {
     path: "/gallery",
-    element: <GalleryPage />, // GalleryPage route
-  }
+    element: <GalleryPage />,
+  },
 ]);
 
+// Render the app
 createRoot(document.getElementById("root")!).render(
   <DynamicContextProvider
-  settings={{
-    environmentId: import.meta.env.VITE_DYNAMIC_ENV_ID ?? "",
-    walletConnectors: [EthereumWalletConnectors],
-    overrides: { evmNetworks },
-    recommendedWallets: [{ walletKey: "coinbase" }],
-  }}
+    settings={{
+      environmentId: import.meta.env.VITE_DYNAMIC_ENV_ID ?? "",
+      walletConnectors: [EthereumWalletConnectors],
+      overrides: { evmNetworks },
+      recommendedWallets: [{ walletKey: "coinbase" }], // Prioritize Coinbase Smart Wallet
+    }}
   >
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <DynamicWagmiConnector>
-          <CoinsProvider>
-            <RouterProvider router={router} />
-            <ToastContainer />
-          </CoinsProvider>
-        </DynamicWagmiConnector>
+        <CoinsProvider>
+          <RouterProvider router={router} />
+          <ToastContainer />
+        </CoinsProvider>
       </QueryClientProvider>
     </WagmiProvider>
   </DynamicContextProvider>
