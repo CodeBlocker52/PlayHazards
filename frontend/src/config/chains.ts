@@ -2,27 +2,27 @@ import { JsonRpcProvider } from "ethers";
 import { morphHolesky, hardhat, baseSepolia } from "viem/chains";
 
 export enum ChainId {
-  Morph = 2810,
+  Monad = 10143,
   Hardhat = 31337,
 }
 
-type ValidChainID = ChainId.Morph | ChainId.Hardhat;
+type ValidChainID = ChainId.Monad | ChainId.Hardhat;
 
 export type ChainIDUrl = {
   [T in ValidChainID]: string;
 };
 
 export const readOnlyUrls: ChainIDUrl = {
-  [ChainId.Morph]:
+  [ChainId.Monad]:
     morphHolesky.rpcUrls.default.http[0] ||
-    "https://rpc-quicknode-holesky.morphl2.io",
+    "https://testnet-rpc.monad.xyz",
   [ChainId.Hardhat]: hardhat.rpcUrls.default.http[0] ?? `http://localhost:8545`,
 };
 
 export const blockExplorers: ChainIDUrl = {
-  [ChainId.Morph]:
+  [ChainId.Monad]:
     morphHolesky.blockExplorers.default.url ??
-    `https://explorer-holesky.morphl2.io/`,
+    `https://testnet.monadexplorer.com`,
   [ChainId.Hardhat]: `https://localhost:8545`,
 };
 
