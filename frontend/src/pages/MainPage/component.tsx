@@ -144,15 +144,15 @@ export const MainPage = () => {
     <VerticalNavigationTemplate>
       <div className="py-10 mx-auto mt-4 ml-4">
         <div>
-          <div className="flex items-center mb-5">
-            <img alt="icon" src="/reward.svg" />
-            <div className="ml-4">
-              <p className="text-3xl font-bold text-white">Rewards</p>
-              <p className="text-lg text-white opacity-80">
-                Play games and claim exclusive NFTs!
-              </p>
+          <div className="flex items-center ">
+            <div className="mb-6 px-3">
+              <img alt="icon" src="/reward.svg" />
             </div>
+            <p className="text-3xl mt-2 mb-10 font-bold text-white">Rewards</p>
           </div>
+          <p className="text-lg  text-white opacity-80">
+            Play games and claim exclusive NFTs!
+          </p>
           <div className="flex animate-smooth-appear">
             <div className="px-8 py-3 bg-gray-750 rounded-2xl w-60">
               <p className="text-sm text-gray-300 bg-gray-750">
