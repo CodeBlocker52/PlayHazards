@@ -142,7 +142,7 @@ export const MainPage = () => {
 
   return (
     <VerticalNavigationTemplate>
-      <div className="py-4 mx-auto mt-4 ml-4">
+      <div className="py-10 mx-auto mt-4 ml-4">
         <div>
           <div className="flex items-center mb-5">
             <img alt="icon" src="/reward.svg" />
@@ -154,7 +154,7 @@ export const MainPage = () => {
             </div>
           </div>
           <div className="flex animate-smooth-appear">
-            <div className="px-4 py-3 bg-gray-750 rounded-2xl">
+            <div className="px-8 py-3 bg-gray-750 rounded-2xl w-60">
               <p className="text-sm text-gray-300 bg-gray-750">
                 Synced on-chain
               </p>
@@ -170,9 +170,9 @@ export const MainPage = () => {
               </div>
             </div>
             <div className="ml-4">
-              <div className="flex items-center px-4 py-3 bg-gray-750 rounded-2xl">
+              <div className="flex items-center justify-center px-4 py-3 bg-gray-750 rounded-2xl w-60">
                 <div>
-                  <p className="text-sm text-gray-300">Pending</p>
+                  <p className="text-sm text-gray-300">Transfer on-chain</p>
                   <div className="flex items-center">
                     <p className="mr-2 text-xl font-bold text-white">{coins}</p>
                     <div

@@ -233,7 +233,7 @@ export const ReactionGame = () => {
         icon={icon}
         activeGame={activeGame}
         setActiveGame={setActiveGame}
-        className={clsx([!activeGame && "px-4"])}
+        className={clsx([!activeGame && "px-4 py-10"])}
         pregameText={pregameText}
         gameDesc={gameDesc}
       >

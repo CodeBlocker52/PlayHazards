@@ -5,20 +5,21 @@ import { VerticalNavigation } from "./libs/VerticalNavigation";
 export const VerticalNavigationTemplate: React.FC = ({ children }: any) => {
   return (
     <div
-      className="flex mx-auto max-w-screen-lg items-top"
+      className="flex mx-auto"
       style={{ minHeight: "100vh" }}
     >
-      <div>
+      <div className="fixed left-0 top-0 h-full z-10">
         <VerticalNavigation />
       </div>
       <div
-        className="flex-1 pl-2"
+        className="flex-1 flex justify-center pl-2  w-full"
         style={{
-          borderLeftColor: "#2c3a43",
-          borderLeftWidth: 1,
+          paddingLeft: "var(--nav-width, 200px)", // Use padding instead of margin
         }}
       >
-        {children}
+        <div className="w-full max-w-4xl px-4"> {/* Added padding for better spacing */}
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ export const GalleryPage = () => {
 
   return (
     <VerticalNavigationTemplate>
-      <div className="py-4 mx-auto mt-4">
+      <div className="py-10 mx-auto mt-4">
         <h2 className="text-3xl font-bold text-center text-white">Gallery</h2>
         <p className="text-center text-white opacity-80">
             Relive the Epic Moments of Your Dungeons & Dragons Quest

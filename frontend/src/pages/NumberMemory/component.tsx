@@ -263,7 +263,7 @@ export const NumberMemory: React.FC = () => {
         setActiveGame={setActiveGame}
         pregameText={pregameText}
         gameDesc={gameDesc}
-        className="px-4"
+        className="px-4 py-10"
       >
         <div className="round-main">{res}</div>
       </GameTemplate>

@@ -168,7 +168,7 @@ export const ChimpGame = () => {
         icon={icon}
         activeGame={activeGame}
         setActiveGame={setActiveGame}
-        className="px-4"
+        className="px-4 py-10"
         pregameText={pregameText}
         gameDesc={gameDesc}
       >

@@ -43,7 +43,7 @@ export const VerticalNavigation: React.FC = () => {
         <p className="text-2xl leading-6">PlayHazards</p>
       </button>
       <MemoizedAccountBlock />
-      <p className="pb-0 pl-4 mt-6 font-bold text-white">Navigation</p>
+      <p className="pb-0 pl-4 mt-6 font-bold text-white">Dashboard</p>
       <div className="flex flex-col items-start justify-start w-full px-4 pb-5 mt-3 space-y-3">
         <Link to="/" className="w-full">
           <button
