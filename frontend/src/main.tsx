@@ -23,6 +23,7 @@ import {
   ReactionGame,
   NumberMemory,
   DndGame,
+  LandingPage,
 } from "./pages";
 import { GalleryPage } from "./pages/Gallery";
 import { ChainId } from "config/chains";
@@ -47,7 +48,7 @@ const evmNetworks: EvmNetwork[] = [
 const coinbaseConnector = coinbaseWallet({
   appName: "PlayHazards",
   chains: [baseSepolia],
-  preference: "smartWalletOnly", 
+  preference: "smartWalletOnly",
 });
 
 const config = createConfig({
@@ -63,6 +64,10 @@ const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <LandingPage />,
+  },
+  {
+    path: "/main",
     element: <MainPage />,
   },
   {
