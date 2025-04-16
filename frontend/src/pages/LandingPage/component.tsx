@@ -17,7 +17,7 @@ export const LandingPage = () => {
       <div className="absolute inset-0 bg-black opacity-50" />
       <div className="relative z-10 flex flex-col items-center px-6 py-12 sm:px-12 lg:px-24">
         <h1 className="text-6xl font-extrabold mb-6 bg-gradient-to-r from-purple-200 to-purple-300 bg-clip-text text-transparent animate-pulse">
-          Web3 Game Odyssey
+          PlayHazards
         </h1>
         <p className="text-xl mb-8 text-center max-w-2xl text-gray-200 neon-glow drop-shadow-lg">
           Step into a blockchain-powered universe! Earn rare NFTs, battle in epic challenges, and dominate the chain.
