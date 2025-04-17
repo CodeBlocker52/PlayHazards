@@ -45,11 +45,11 @@ export const VerticalNavigation: React.FC = () => {
       <MemoizedAccountBlock />
       <p className="pb-0 pl-4 mt-6 font-bold text-white">Dashboard</p>
       <div className="flex flex-col items-start justify-start w-full px-4 pb-5 mt-3 space-y-3">
-        <Link to="/" className="w-full">
+        <Link to="/main" className="w-full">
           <button
             style={{
               backgroundColor:
-                location.pathname === "/" ? "#202a30" : "transparent",
+                location.pathname === "/main" ? "#202a30" : "transparent",
             }}
             className="flex items-center w-full py-3 pl-4 text-white rounded focus:outline-none jusitfy-start hover:text-white hover:bg-gray-700 space-x-6"
           >
