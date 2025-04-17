@@ -110,7 +110,8 @@ export const MainPage = () => {
   }, [refetchBalance, setCoins, BITContractTxStatus]);
 
   useEffect(() => {
-    if (isBalanceReadSuccess && !isFetching) {
+    console.log("balanceData", balanceData);
+    if (isBalanceReadSuccess) {
       setSynced(Number(formatEther(balanceData as bigint)));
     }
   }, [balanceData, isBalanceReadSuccess, isFetching, setCoins]);
