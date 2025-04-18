@@ -145,6 +145,25 @@ export const VerticalNavigation: React.FC = () => {
             </div>
           </button>
         </Link>
+
+        <Link to="/profile" className="w-full">
+          <button
+            style={{
+              backgroundColor:
+                location.pathname === "/profile" ? "#202a30" : "transparent",
+            }}
+            className="flex items-center justify-start w-full py-3 pl-4 text-white rounded focus:outline-none hover:text-white hover:bg-gray-700"
+            onClick={() => navigate("/profile")}
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-start">
+                <CollectionsIcon className="w-6" />
+                <p className="ml-6 text-base leading-4">Profile</p>
+              </div>
+            </div>
+          </button>
+        </Link>
+
       </div>
       <p className="pb-0 pl-4 font-bold text-white">Games</p>
       <div className="flex flex-col items-start justify-start w-full px-4 pb-5 mt-4 text-white space-y-3">

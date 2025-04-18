@@ -27,6 +27,7 @@ import {
 } from "./pages";
 import { GalleryPage } from "./pages/Gallery";
 import { ChainId } from "config/chains";
+import {ProfileComponent} from "./pages/Profile";
 
 // Define Base Sepolia network for Dynamic Labs
 const evmNetworks: EvmNetwork[] = [
@@ -93,6 +94,10 @@ const router = createBrowserRouter([
   {
     path: "/gallery",
     element: <GalleryPage />,
+  },
+  {
+    path: "/profile",
+    element: <ProfileComponent />,
   },
 ]);
 
