@@ -75,7 +75,7 @@ export const ReactionIcon: FC<IconProps> = ({ className }: IconProps) => (
   </svg>
 );
 
-export const NumberMemoryIcon: FC<IconProps> = ({ className }: IconProps) => (
+export const MemoryMatrixIcon: FC<IconProps> = ({ className }: IconProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 20 20"

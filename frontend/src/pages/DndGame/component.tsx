@@ -489,7 +489,7 @@ export const DndGame: React.FC = () => {
                     <Button
                       variant="contained"
                       onClick={() => {
-                        navigate("/");
+                        navigate("/main");
                       }}
                     >
                       Back to Main page

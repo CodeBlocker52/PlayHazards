@@ -21,7 +21,7 @@ import {
   ChimpGame,
   LeaderboardPage,
   ReactionGame,
-  NumberMemory,
+  MemoryMatrix,
   DndGame,
   LandingPage,
 } from "./pages";
@@ -83,8 +83,8 @@ const router = createBrowserRouter([
     element: <ReactionGame />,
   },
   {
-    path: "/numberMemory",
-    element: <NumberMemory />,
+    path: "/memoryMatrix",
+    element: <MemoryMatrix />,
   },
   {
     path: "/dndgame",

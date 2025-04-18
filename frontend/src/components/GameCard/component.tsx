@@ -8,21 +8,20 @@ import {
   ChartIcon,
   ChimpIcon,
   GameType,
-  NumberMemoryIcon,
+  MemoryMatrixIcon,
   PlayIcon,
   ShareIcon,
   CollectionsIcon,
 } from "../../core";
 import { Props } from "./props";
 
-
 export const GameCard: FC<Props> = forwardRef<HTMLDivElement, Props>(
   ({ name, id, percentile, points, unit, className }: Props, ref) => {
     const gameIcons = {
       reactionTime: <AlarmIcon className="w-32 p-3" />,
-      numberMemory: <NumberMemoryIcon className="w-32 p-2" />,
+      memoryMatrix: <MemoryMatrixIcon className="w-32 p-2" />,
       chimpTest: <ChimpIcon className="w-32" />,
-      gallery: <CollectionsIcon className="w-32"/>
+      gallery: <CollectionsIcon className="w-32" />,
     };
 
     const shareInfo = async () => {

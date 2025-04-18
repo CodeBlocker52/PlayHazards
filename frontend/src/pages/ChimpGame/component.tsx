@@ -106,7 +106,7 @@ export const ChimpGame = () => {
   };
 
   const returnToHomePage = () => {
-    navigate("/");
+    navigate("/main");
   };
 
   const pregameText = (

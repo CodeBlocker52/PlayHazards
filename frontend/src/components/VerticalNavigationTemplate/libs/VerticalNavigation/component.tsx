@@ -1,12 +1,17 @@
 import React, { memo } from "react";
 import { useAccount } from "wagmi";
 import clsx from "clsx";
-import { ChimpIcon, CoinIcon, NumberMemoryIcon, ReactionIcon, CollectionsIcon } from "core";
+import {
+  ChimpIcon,
+  CoinIcon,
+  MemoryMatrixIcon,
+  ReactionIcon,
+  CollectionsIcon,
+} from "core";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
-import ApiIcon from '@mui/icons-material/Api';
-import logo from "../../../../assets/logo.png"
-
+import ApiIcon from "@mui/icons-material/Api";
+import logo from "../../../../assets/logo.png";
 
 const AccountBlock: React.FC = () => {
   const { address: account } = useAccount();
@@ -124,31 +129,26 @@ export const VerticalNavigation: React.FC = () => {
         </Link>
 
         <Link to="/gallery" className="w-full">
-
-        <button
-          style={{
-            backgroundColor:
-              location.pathname === "/gallery" ? "#202a30" : "transparent",
-          }}
-          className="flex items-center justify-start w-full py-3 pl-4 text-white rounded focus:outline-none hover:text-white hover:bg-gray-700"
-          onClick={() => navigate("/gallery")}
-        >
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center justify-start">
-              <CollectionsIcon className="w-6" />
-              <p className="ml-6 text-base leading-4">Gallery</p>
+          <button
+            style={{
+              backgroundColor:
+                location.pathname === "/gallery" ? "#202a30" : "transparent",
+            }}
+            className="flex items-center justify-start w-full py-3 pl-4 text-white rounded focus:outline-none hover:text-white hover:bg-gray-700"
+            onClick={() => navigate("/gallery")}
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-start">
+                <CollectionsIcon className="w-6" />
+                <p className="ml-6 text-base leading-4">Gallery</p>
+              </div>
             </div>
-          </div>
-        </button>
-
+          </button>
         </Link>
-
-        
       </div>
       <p className="pb-0 pl-4 font-bold text-white">Games</p>
       <div className="flex flex-col items-start justify-start w-full px-4 pb-5 mt-4 text-white space-y-3">
-        
-      <button
+        <button
           style={{
             backgroundColor:
               location.pathname === "/dndgame" ? "#202a30" : "transparent",
@@ -163,7 +163,7 @@ export const VerticalNavigation: React.FC = () => {
             </div>
           </div>
         </button>
-        
+
         <button
           style={{
             backgroundColor:
@@ -182,13 +182,13 @@ export const VerticalNavigation: React.FC = () => {
         <button
           style={{
             backgroundColor:
-              location.pathname === "/numberMemory" ? "#202a30" : "transparent",
+              location.pathname === "/memoryMatrix" ? "#202a30" : "transparent",
           }}
           className="flex items-center justify-start w-full py-3 pl-4 text-white rounded focus:outline-none space-x-6 hover:text-white hover:bg-gray-700 hover:bg-red"
-          onClick={() => navigate("/numberMemory")}
+          onClick={() => navigate("/memoryMatrix")}
         >
-          <NumberMemoryIcon className="w-6" />
-          <p className="text-base leading-4">Number Memory</p>
+          <MemoryMatrixIcon className="w-6" />
+          <p className="text-base leading-4">Memory Matrix</p>
         </button>
         <button
           style={{
@@ -201,10 +201,8 @@ export const VerticalNavigation: React.FC = () => {
           <ReactionIcon className="w-6" />
           <p className="text-base leading-4">Reaction time</p>
         </button>
-
       </div>
       <div className="flex items-center hidden px-6 py-4 ml-4 font-bold coin-display rounded-md animate-pulse-fast">
-        
         <p>203 BIT</p>
       </div>
     </div>
