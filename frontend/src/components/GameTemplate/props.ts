@@ -8,4 +8,5 @@ export type Props = HTMLAttributes<HTMLDivElement> & {
   setActiveGame: (x: boolean) => void;
   pregameText: React.ReactElement;
   gameDesc: React.ReactElement;
+  onClose?: () => void;
 };

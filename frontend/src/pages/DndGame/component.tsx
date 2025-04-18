@@ -309,6 +309,20 @@ export const DndGame: React.FC = () => {
     </div>
   );
 
+  const handleGameClose = () => {
+    // Reset all game state
+    setTurns(5);
+    setChatLog([]);
+    setChoices([]);
+    setGameState({
+      mode: MODES.INIT,
+      turns: 0,
+    });
+    setChoice("");
+    setIsLoading(false);
+    // Keep model selection as is since it's a preference
+  };
+
   return (
     <VerticalNavigationTemplate>
       <div className="flex flex-col h-full overflow-y-auto text-white gap-4">
@@ -321,6 +335,7 @@ export const DndGame: React.FC = () => {
           className="px-4 py-10"
           pregameText={pregameText}
           gameDesc={gameDesc}
+          onClose={handleGameClose}
         >
           <ThemeProvider theme={localTheme}>
             {gameState.mode === MODES.INIT && (

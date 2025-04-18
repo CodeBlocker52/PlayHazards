@@ -734,6 +734,17 @@ export const MemoryMatrix: React.FC = () => {
     </div>
   );
 
+  const handleGameClose = () => {
+    // Reset all game state
+    setLevel(1);
+    setGuess("");
+    setInputValue("");
+    setGameActive(1);
+    setCounter(0);
+    setCurrentQuestion(null);
+    // Reset any other state that needs to be cleared
+  };
+
   return (
     <VerticalNavigationTemplate>
       <GameTemplate
@@ -744,6 +755,7 @@ export const MemoryMatrix: React.FC = () => {
         setActiveGame={setActiveGame}
         pregameText={pregameText}
         gameDesc={gameDesc}
+        onClose={handleGameClose}
         className="px-4 py-10"
       >
         <div className="round-main">{res}</div>

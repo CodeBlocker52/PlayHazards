@@ -160,6 +160,17 @@ export const ChimpGame = () => {
     </div>
   );
 
+  const handleGameClose = () => {
+    // Reset all game state
+    setTarget(1);
+    setGameState({
+      mode: MODES.Question,
+      strikes: 0,
+      numbers: 4,
+      puzzle: generatePuzzle(4),
+    });
+  };
+
   return (
     <VerticalNavigationTemplate>
       <GameTemplate
@@ -171,6 +182,7 @@ export const ChimpGame = () => {
         className="px-4 py-10"
         pregameText={pregameText}
         gameDesc={gameDesc}
+        onClose={handleGameClose}
       >
         {gameState.mode === MODES.Question && (
           <div className="w-full grid grid-cols-5 grid-rows-5 gap-2">
