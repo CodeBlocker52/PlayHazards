@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import {
   User,
   Edit2,
@@ -12,6 +12,8 @@ import {
   Coins,
 } from "lucide-react";
 import { VerticalNavigationTemplate } from "components/VerticalNavigationTemplate";
+import { formatEther } from "viem";
+import { BITContract } from "config/contracts";
 
 interface UserProfile {
   name: string;
@@ -21,13 +23,24 @@ interface UserProfile {
 }
 
 export const ProfileComponent: React.FC = () => {
-  const { address, isConnected } = useAccount();
+  const { address: account, isConnected } = useAccount();
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
   });
+
+  const {
+    data: balanceData,
+    isSuccess: isBalanceReadSuccess,
+    isFetching,
+    refetch: refetchBalance,
+  } = useReadContract({
+    ...BITContract,
+    functionName: "balanceOf",
+    args: [account],
+  } as any);
 
   // Initial profile data - in a real app, this would come from an API
   const [profile, setProfile] = useState<UserProfile>({
@@ -147,7 +160,10 @@ export const ProfileComponent: React.FC = () => {
                 <div className="relative -mt-20 mb-4">
                   <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white dark:ring-gray-800 bg-gray-200">
                     <img
-                      src={formData.avatar || "/api/placeholder/150/150"}
+                      src={
+                        formData.avatar ||
+                        "https://pwco.com.sg/wp-content/uploads/2020/05/Generic-Profile-Placeholder-v3.png"
+                      }
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
@@ -223,7 +239,7 @@ export const ProfileComponent: React.FC = () => {
                     </label>
                     <div className="flex items-center gap-2">
                       <p className="text-gray-800 dark:text-gray-200 font-mono text-sm break-all">
-                        {address}
+                        {account}
                       </p>
                       <span className="text-xs text-gray-500 dark:text-gray-400 italic">
                         (Cannot be edited)
@@ -260,27 +276,8 @@ export const ProfileComponent: React.FC = () => {
                 Game Stats
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl shadow-sm border border-blue-100 dark:border-gray-600">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                        Games Played
-                      </p>
-                      <p className="text-3xl font-bold text-gray-800 dark:text-white mt-1">
-                        42
-                      </p>
-                    </div>
-                    <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
-                      <Clock
-                        size={24}
-                        className="text-blue-600 dark:text-blue-400"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl shadow-sm border border-green-100 dark:border-gray-600">
+              <div className="flex justify-around items-center ">
+                <div className="bg-gradient-to-br from-emerald-50 min-w-80 to-green-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl shadow-sm border border-green-100 dark:border-gray-600">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
@@ -299,14 +296,14 @@ export const ProfileComponent: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl shadow-sm border border-amber-100 dark:border-gray-600">
+                <div className="bg-gradient-to-br from-amber-50 to-red-200 min-w-80 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl shadow-sm border border-amber-100 dark:border-gray-600">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
                         BIT Tokens
                       </p>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white mt-1">
-                        1,250
+                        {Number(formatEther(balanceData as bigint))}
                       </p>
                     </div>
                     <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
