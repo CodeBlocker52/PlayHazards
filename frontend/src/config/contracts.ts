@@ -1,6 +1,11 @@
 import BITToken from "artifacts/contracts/BITToken.sol/BITToken.json";
 import BrainNFT from "artifacts/contracts/BrainNFT.sol/BrainNFT.json";
-import { ChainId, ChainIDUrl, TARGET_CHAIN } from "./chains";
+import { ChainIDUrl, TARGET_CHAIN } from "config";
+
+export enum ChainId {
+  Morph = 2810,
+  Hardhat = 31337,
+}
 
 const bitTokenAddresses: ChainIDUrl = {
   [ChainId.Hardhat]: "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
