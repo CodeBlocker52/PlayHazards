@@ -65,7 +65,7 @@ export const ReactionGame = () => {
   };
 
   const returnToHomePage = () => {
-    navigate("/");
+    navigate("/main");
   };
 
   const restartGame = () => {

@@ -4,6 +4,7 @@ import { useUserWallets } from "@dynamic-labs/sdk-react-core";
 
 import { CrossIcon } from "../../core";
 import { Props } from "./props";
+import { Button } from "@mui/material";
 
 export const GameTemplate: FC<Props> = ({
   className,
@@ -12,6 +13,7 @@ export const GameTemplate: FC<Props> = ({
   setActiveGame,
   pregameText,
   gameDesc,
+  onClose,
 }: Props) => {
   const userWallets = useUserWallets();
   const [start, setStart] = useState(true);
@@ -19,6 +21,7 @@ export const GameTemplate: FC<Props> = ({
   const closeGame = () => {
     setStart(true);
     setActiveGame(false);
+    if (onClose) onClose();
   };
 
   return (
@@ -57,13 +60,29 @@ export const GameTemplate: FC<Props> = ({
         </>
       )}
       {!activeGame && !start && (
-        <>
+        <div className="flex flex-col items-center">
           {gameDesc}
-          <div
+          <div className="mt-6">
+            <Button
+              variant="contained"
+              onClick={() => setActiveGame(true)}
+              sx={{
+                backgroundColor: "#6c757d",
+                "&:hover": {
+                  backgroundColor: "#5a6268",
+                },
+                padding: "10px 30px",
+                fontSize: "1.2rem",
+              }}
+            >
+              Play Now
+            </Button>
+          </div>
+          {/* <div
             className="absolute z-10 w-full h-full bg-black bg-opacity-0"
             onClick={() => setActiveGame(true)}
-          />
-        </>
+          /> */}
+        </div>
       )}
       {activeGame && children}
     </div>

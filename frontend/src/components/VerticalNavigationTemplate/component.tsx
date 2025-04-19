@@ -14,7 +14,7 @@ export const VerticalNavigationTemplate: React.FC = ({ children }: any) => {
           paddingLeft: "var(--nav-width, 200px)", // Use padding instead of margin
         }}
       >
-        <div className="w-full ml-32 px-4">
+        <div className="w-full px-4">
           {" "}
           {/* Added padding for better spacing */}
           {children}
