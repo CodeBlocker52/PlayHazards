@@ -17,7 +17,7 @@ export const GameTemplate: FC<Props> = ({
 }: Props) => {
   const userWallets = useUserWallets();
   const [start, setStart] = useState(true);
-
+  console.log('userWallets', userWallets)
   const closeGame = () => {
     setStart(true);
     setActiveGame(false);

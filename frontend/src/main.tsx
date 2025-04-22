@@ -14,6 +14,8 @@ import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { coinbaseWallet } from "wagmi/connectors";
+// Import the DynamicWagmiConnector
+import { DynamicWagmiConnector } from "@dynamic-labs/wagmi-connector";
 
 import { CoinsProvider } from "config/context";
 import {
@@ -83,13 +85,13 @@ const monadTestnet = {
 // Modify the coinbase connector to include Monad
 const coinbaseConnector = coinbaseWallet({
   appName: "PlayHazards",
-  chains: [ monadTestnet],
+  chains: [monadTestnet],
   preference: "smartWalletOnly",
 });
 
 // Update the config to include Monad
 const config = createConfig({
-  chains: [ monadTestnet],
+  chains: [monadTestnet],
   connectors: [coinbaseConnector],
   transports: {
     // [baseSepolia.id]: http(),
@@ -138,23 +140,25 @@ const router = createBrowserRouter([
   },
 ]);
 
-// Render the app
+// Render the app with correct provider order
 createRoot(document.getElementById("root")!).render(
-  <DynamicContextProvider
-    settings={{
-      environmentId: import.meta.env.VITE_DYNAMIC_ENV_ID ?? "",
-      walletConnectors: [EthereumWalletConnectors],
-      overrides: { evmNetworks },
-      recommendedWallets: [{ walletKey: "coinbase" }], // Prioritize Coinbase Smart Wallet
-    }}
-  >
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <CoinsProvider>
-          <RouterProvider router={router} />
-          <ToastContainer />
-        </CoinsProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  </DynamicContextProvider>
+  <WagmiProvider config={config}>
+    <QueryClientProvider client={queryClient}>
+      <DynamicContextProvider
+        settings={{
+          environmentId: import.meta.env.VITE_DYNAMIC_ENV_ID ?? "",
+          walletConnectors: [EthereumWalletConnectors],
+          overrides: { evmNetworks },
+          recommendedWallets: [{ walletKey: "coinbase" }], // Prioritize Coinbase Smart Wallet
+        }}
+      >
+        <DynamicWagmiConnector>
+          <CoinsProvider>
+            <RouterProvider router={router} />
+            <ToastContainer />
+          </CoinsProvider>
+        </DynamicWagmiConnector>
+      </DynamicContextProvider>
+    </QueryClientProvider>
+  </WagmiProvider>
 );
