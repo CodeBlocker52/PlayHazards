@@ -379,7 +379,9 @@ export const ProfileComponent: React.FC = () => {
                         BIT Tokens
                       </p>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white mt-1">
-                        {/* {Number(formatEther(balanceData as bigint))} */}
+                        {balanceData
+                          ? Number(formatEther(balanceData as bigint))
+                          : 0}
                       </p>
                     </div>
                     <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
