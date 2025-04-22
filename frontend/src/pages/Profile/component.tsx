@@ -14,17 +14,26 @@ import {
 import { VerticalNavigationTemplate } from "components/VerticalNavigationTemplate";
 import { formatEther } from "viem";
 import { BITContract } from "config/contracts";
+import axios from "axios";
 
 interface UserProfile {
   name: string;
   email: string;
   avatar: string;
   bio: string;
+  gameStats?: {
+    nftsOwned: number;
+    gamesPlayed: number;
+    lastPlayed: string;
+  };
 }
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 export const ProfileComponent: React.FC = () => {
   const { address: account, isConnected } = useAccount();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState({
     open: false,
     message: "",
@@ -42,16 +51,44 @@ export const ProfileComponent: React.FC = () => {
     args: [account],
   } as any);
 
-  // Initial profile data - in a real app, this would come from an API
+  // Initial profile data - now we'll fetch from API
   const [profile, setProfile] = useState<UserProfile>({
     name: "Player One",
     email: "player@playhazards.com",
     avatar: "",
     bio: "Blockchain gaming enthusiast and NFT collector.",
+    gameStats: {
+      nftsOwned: 0,
+      gamesPlayed: 0,
+      lastPlayed: new Date().toISOString(),
+    },
   });
 
   // Form state for editing
   const [formData, setFormData] = useState<UserProfile>(profile);
+
+  // Fetch user profile from API
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (account && isConnected) {
+        try {
+          setIsLoading(true);
+          const response = await axios.get(
+            `${API_BASE_URL}/api/users/${account}`
+          );
+          setProfile(response?.data?.data);
+          setFormData(response?.data?.data);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          // If error, we'll use default profile data
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [account, isConnected]);
 
   // Update form data when profile changes
   useEffect(() => {
@@ -75,14 +112,38 @@ export const ProfileComponent: React.FC = () => {
     }));
   };
 
-  const handleSave = () => {
-    setProfile(formData);
-    setIsEditing(false);
-    setNotification({
-      open: true,
-      message: "Profile updated successfully!",
-      severity: "success",
-    });
+  const handleSave = async () => {
+    if (account && isConnected) {
+      try {
+        setIsLoading(true);
+        const response = await axios.put(
+          `${API_BASE_URL}/api/users/${account}`,
+          {
+            name: formData.name,
+            email: formData.email,
+            avatar: formData.avatar,
+            bio: formData.bio,
+          }
+        );
+
+        setProfile(response?.data?.data);
+        setIsEditing(false);
+        setNotification({
+          open: true,
+          message: "Profile updated successfully!",
+          severity: "success",
+        });
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        setNotification({
+          open: true,
+          message: "Failed to update profile. Please try again.",
+          severity: "error",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleCancel = () => {
@@ -119,6 +180,16 @@ export const ProfileComponent: React.FC = () => {
     );
   }
 
+  if (isLoading) {
+    return (
+      <VerticalNavigationTemplate>
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      </VerticalNavigationTemplate>
+    );
+  }
+
   return (
     <VerticalNavigationTemplate>
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -138,8 +209,13 @@ export const ProfileComponent: React.FC = () => {
                 <button
                   onClick={handleSave}
                   className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-all"
+                  disabled={isLoading}
                 >
-                  <Save size={18} />
+                  {isLoading ? (
+                    <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent"></div>
+                  ) : (
+                    <Save size={18} />
+                  )}
                   <span>Save</span>
                 </button>
                 <button
@@ -284,7 +360,7 @@ export const ProfileComponent: React.FC = () => {
                         NFTs Owned
                       </p>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white mt-1">
-                        3
+                        {profile.gameStats?.nftsOwned || 0}
                       </p>
                     </div>
                     <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-lg">
@@ -303,7 +379,7 @@ export const ProfileComponent: React.FC = () => {
                         BIT Tokens
                       </p>
                       <p className="text-3xl font-bold text-gray-800 dark:text-white mt-1">
-                        {Number(formatEther(balanceData as bigint))}
+                        {/* {Number(formatEther(balanceData as bigint))} */}
                       </p>
                     </div>
                     <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
@@ -315,6 +391,35 @@ export const ProfileComponent: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* <div className="mt-6">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl shadow-sm border border-blue-100 dark:border-gray-600">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                        Games Played
+                      </p>
+                      <p className="text-3xl font-bold text-gray-800 dark:text-white mt-1">
+                        {profile.gameStats?.gamesPlayed || 0}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Last played:{" "}
+                        {profile.gameStats?.lastPlayed
+                          ? new Date(
+                              profile.gameStats.lastPlayed
+                            ).toLocaleDateString()
+                          : "Never"}
+                      </p>
+                    </div>
+                    <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+                      <Clock
+                        size={24}
+                        className="text-blue-600 dark:text-blue-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div> */}
             </div>
           </div>
         </div>

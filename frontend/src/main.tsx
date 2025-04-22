@@ -31,32 +31,69 @@ import {ProfileComponent} from "./pages/Profile";
 
 // Define Base Sepolia network for Dynamic Labs
 const evmNetworks: EvmNetwork[] = [
+  // {
+  //   blockExplorerUrls: [baseSepolia.blockExplorers.default.url],
+  //   chainId: baseSepolia.id,
+  //   chainName: "Base Sepolia",
+  //   name: "Base Sepolia",
+  //   iconUrls: ["https://app.dynamic.xyz/assets/networks/base.svg"],
+  //   nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
+  //   networkId: baseSepolia.id,
+  //   privateCustomerRpcUrls: [],
+  //   rpcUrls: [baseSepolia.rpcUrls.default.http[0]],
+  //   vanityName: "Base Sepolia",
+  // },
+  // Add Monad Testnet
   {
-    blockExplorerUrls: [baseSepolia.blockExplorers.default.url],
-    chainId: baseSepolia.id,
-    chainName: "Base Sepolia",
-    name: "Base Sepolia",
-    iconUrls: ["https://app.dynamic.xyz/assets/networks/base.svg"],
-    nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
-    networkId: baseSepolia.id,
+    blockExplorerUrls: ["https://testnet.monadexplorer.com"],
+    chainId: 10143, // Monad Testnet chain ID
+    chainName: "Monad Testnet",
+    name: "Monad Testnet",
+    iconUrls: ["https://your-monad-icon-url"], // You'll need to provide an icon URL
+    nativeCurrency: { decimals: 18, name: "Monad", symbol: "MON" },
+    networkId: 10143,
     privateCustomerRpcUrls: [],
-    rpcUrls: [baseSepolia.rpcUrls.default.http[0]],
-    vanityName: "Base Sepolia",
-  },
+    rpcUrls: ["https://testnet-rpc.monad.xyz"],
+    vanityName: "Monad Testnet",
+  }
 ];
+// Create a custom chain definition for Monad
+const monadTestnet = {
+  id: 10143,
+  name: 'Monad Testnet',
+  network: 'monad-testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Monad',
+    symbol: 'MON',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://testnet-rpc.monad.xyz'],
+    },
+    public: {
+      http: ['https://testnet-rpc.monad.xyz'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'MonadExplorer', url: 'https://testnet.monadexplorer.com' },
+  },
+}
 
-// Configure Wagmi with Coinbase Wallet connector
+// Modify the coinbase connector to include Monad
 const coinbaseConnector = coinbaseWallet({
   appName: "PlayHazards",
-  chains: [baseSepolia],
+  chains: [ monadTestnet],
   preference: "smartWalletOnly",
 });
 
+// Update the config to include Monad
 const config = createConfig({
-  chains: [baseSepolia],
+  chains: [ monadTestnet],
   connectors: [coinbaseConnector],
   transports: {
-    [baseSepolia.id]: http(),
+    // [baseSepolia.id]: http(),
+    [monadTestnet.id]: http('https://testnet-rpc.monad.xyz'),
   },
 });
 
