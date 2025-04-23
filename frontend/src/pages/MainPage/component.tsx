@@ -40,24 +40,136 @@ export const MainPage = () => {
   const [silverNFT, setSilverNFT] = useState([]);
   const [goldNFT, setGoldNFT] = useState([]);
 
+  // Fetch NFT data with fallback to local images
   useEffect(() => {
     const blobUrl = `${baseAggregatorUrl}/v1/${blod_id_info["blob_id"]}`;
 
-    fetch(blobUrl, {
-      method: "GET",
-    })
-      .then((res) => {
-        res.json().then((data) => {
-          console.log(data);
-          setBronzeNFT(data.bronzeNFT);
-          setSilverNFT(data.silverNFT);
-          setGoldNFT(data.goldNFT);
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    // Import the NFT image utilities
+    import("../../utils/nftImageUtils").then(({ getNFTData }) => {
+      try {
+        // First try to fetch from server
+        fetch(blobUrl, {
+          method: "GET",
+          // Set a timeout to prevent long waits
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`Failed to fetch: ${res.status}`);
+            }
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data);
+            setBronzeNFT(data.bronzeNFT || []);
+            setSilverNFT(data.silverNFT || []);
+            setGoldNFT(data.goldNFT || []);
+          })
+          .catch((err) => {
+            console.log(err);
+            toast.error("Failed to load NFT data. Using local images instead.");
+            
+            // Use local NFT data from our utility
+            const fallbackData = getNFTData();
+            setBronzeNFT(fallbackData.bronzeNFT || []);
+            setSilverNFT(fallbackData.silverNFT || []);
+            setGoldNFT(fallbackData.goldNFT || []);
+          });
+      } catch (error) {
+        console.error("Error in NFT data loading:", error);
+        toast.error("Failed to load NFT data. Using fallback data.");
+        
+        // Use fallback data when the fetch fails
+        const fallbackNFTs = [
+          {
+            name: "Bronze NFT",
+            image: "/av1.png",
+            requiredScore: "50 BIT required",
+            gen: "Gen 1",
+            supply: "Limited",
+            description: "A special NFT for completing games"
+          },
+          {
+            name: "Bronze NFT 2",
+            image: "/av2.png",
+            requiredScore: "50 BIT required",
+            gen: "Gen 1",
+            supply: "Limited",
+            description: "A special NFT for completing games"
+          }
+        ];
+        
+        const silverFallbackNFTs = [
+          {
+            name: "Silver NFT",
+            image: "/av3.png",
+            requiredScore: "300 BIT required",
+            gen: "Gen 1",
+            supply: "Limited",
+            description: "A premium NFT for skilled players"
+          },
+          {
+            name: "Silver NFT 2",
+            image: "/av4.png",
+            requiredScore: "300 BIT required",
+            gen: "Gen 1",
+            supply: "Limited",
+            description: "A premium NFT for skilled players"
+          }
+        ];
+        
+        const goldFallbackNFTs = [
+          {
+            name: "Gold NFT",
+            image: "/av5.png",
+            requiredScore: "500 BIT required",
+            gen: "Gen 1",
+            supply: "Limited",
+            description: "An exclusive NFT for elite players"
+          },
+          {
+            name: "Gold NFT 2",
+            image: "/av6.png",
+            requiredScore: "500 BIT required",
+            gen: "Gen 1",
+            supply: "Limited",
+            description: "An exclusive NFT for elite players"
+          }
+        ];
+        
+        setBronzeNFT(fallbackNFTs);
+        setSilverNFT(silverFallbackNFTs);
+        setGoldNFT(goldFallbackNFTs);
+      }
+    }).catch(error => {
+      console.error("Failed to import nftImageUtils:", error);
+      toast.error("Failed to load NFT utilities. Using basic fallback images.");
+      
+      // Basic fallback if even the utility fails
+      const basicFallbackNFTs = [
+        {
+          name: "Bronze NFT",
+          image: "/av1.png",
+          requiredScore: "50 BIT required",
+          gen: "Gen 1",
+          supply: "Limited",
+          description: "A special NFT for completing games"
+        },
+        {
+          name: "Bronze NFT 2",
+          image: "/av2.png",
+          requiredScore: "50 BIT required",
+          gen: "Gen 1",
+          supply: "Limited",
+          description: "A special NFT for completing games"
+        }
+      ];
+      
+      setBronzeNFT(basicFallbackNFTs);
+      setSilverNFT(basicFallbackNFTs);
+      setGoldNFT(basicFallbackNFTs);
+    });
+  }, [baseAggregatorUrl]);
 
   const claimCoins = useCallback(async () => {
     writeContractBITToken({

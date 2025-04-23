@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getImageUrl } from "../../utils/imageUtils";
 
 interface Props {
   imageUrl: string;
@@ -10,7 +11,8 @@ interface Props {
   handleClick?: () => void;
   insufficient: boolean;
   owned?: boolean;
-  baseAggregatorUrl: string; // The base URL for fetching the blob
+  ipfsCid?: string; // IPFS CID if available
+  baseAggregatorUrl?: string; // Base URL for the aggregator
 }
 
 export const NFTCard: React.FC<Props> = ({
@@ -23,34 +25,73 @@ export const NFTCard: React.FC<Props> = ({
   handleClick,
   insufficient,
   owned,
+  ipfsCid,
   baseAggregatorUrl,
 }: Props) => {
-
   const [fetchedImageUrl, setFetchedImageUrl] = useState<string | null>(null);
-  // const [loadingImage, setLoadingImage] = useState<boolean>(true);
+  const [imageError, setImageError] = useState(false);
 
-  // Fetch the image if imageUrl is a blob ID
+  // Use the utility to get the image URL with improved fallback handling
   useEffect(() => {
-    const fetchImage = async () => {
+    // Reset error state when imageUrl changes
+    setImageError(false);
+    
+    // Import the NFT image utilities for fallback
+    const loadImage = async () => {
       try {
-        // Assuming imageUrl is a blob ID, fetch the actual image URL
-        const blobUrl = `${baseAggregatorUrl}/v1/${imageUrl}`;
-        
-        // Fetch the image and set the URL once loaded
-        setFetchedImageUrl(blobUrl);
-        // setLoadingImage(false);
+        // First try to use the provided imageUrl
+        if (imageUrl) {
+          // If it's a full URL, use it directly
+          if (imageUrl.startsWith('http')) {
+            setFetchedImageUrl(imageUrl);
+          } 
+          // If it's a path starting with '/', it's relative to public
+          else if (imageUrl.startsWith('/')) {
+            setFetchedImageUrl(imageUrl);
+          }
+          // If baseAggregatorUrl is provided and the image might be from IPFS
+          else if (baseAggregatorUrl && !imageUrl.includes('/')) {
+            try {
+              // Try to construct a URL from the baseAggregatorUrl and imageUrl
+              const fullUrl = `${baseAggregatorUrl}/v1/${imageUrl}`;
+              // Test if the image can be loaded
+              const response = await fetch(fullUrl, { method: 'HEAD' });
+              if (response.ok) {
+                setFetchedImageUrl(fullUrl);
+              } else {
+                throw new Error(`Failed to load image from ${fullUrl}`);
+              }
+            } catch (error) {
+              console.error("Error loading image from aggregator:", error);
+              // Fallback to a local asset path
+              setFetchedImageUrl(getImageUrl(`/assets/bronze/brain1.png`));
+            }
+          }
+          // Otherwise use the utility function
+          else {
+            setFetchedImageUrl(getImageUrl(imageUrl));
+          }
+        } else {
+          // Fallback to a default avatar if no imageUrl is provided
+          setFetchedImageUrl(getImageUrl(`/assets/bronze/brain1.png`));
+        }
       } catch (error) {
-        console.error("Error fetching image:", error);
-        // setLoadingImage(false); // Set loading to false in case of error
+        console.error("Error setting image URL:", error);
+        setImageError(true);
+        // Fallback to a default NFT image
+        setFetchedImageUrl(getImageUrl(`/assets/bronze/brain1.png`));
       }
     };
-
-    // Fetch the image if imageUrl is present
-    if (imageUrl) {
-      fetchImage();
-    }
+    
+    loadImage();
   }, [imageUrl, baseAggregatorUrl]);
 
+  // Handle image load errors
+  const handleImageError = () => {
+    setImageError(true);
+    // Fallback to a default avatar
+    setFetchedImageUrl(getImageUrl(`/av${Math.floor(Math.random() * 8) + 1}.png`));
+  };
 
   return (
     <div style={{ border: "1px solid #2c3a43" }} className="rounded-2xl">
@@ -58,15 +99,19 @@ export const NFTCard: React.FC<Props> = ({
         <div
           className="rounded-lg h-60"
           style={{
-            // backgroundImage: loadingImage
-            //   ? "url(/placeholder-image.jpg)" // Show a placeholder while loading
-            //   : `url(${fetchedImageUrl})`, // Show the fetched image once loaded
-            backgroundImage: `url(${fetchedImageUrl})`,
+            backgroundImage: fetchedImageUrl ? `url(${fetchedImageUrl})` : "none",
             backgroundSize: "contain",
             backgroundRepeat: "none",
             backgroundPosition: "center",
+            backgroundColor: "#1a2025", // Dark background for better visibility
           }}
+          onError={handleImageError}
         />
+        {imageError && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-white text-sm">Image could not be loaded</p>
+          </div>
+        )}
         <div className="absolute z-10 bottom-4 left-4">
           <p className="text-xl font-bold text-black">{name}</p>
           <p className="text-xs text-black">{desc}</p>
