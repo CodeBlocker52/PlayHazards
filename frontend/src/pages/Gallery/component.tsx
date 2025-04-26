@@ -45,7 +45,6 @@ export const GalleryPage = () => {
             console.error("Failed to fetch gallery images:", error);
             setError(true);
             setLoading(false);
-            toast.error("Failed to load gallery images. Using local NFT images instead.");
             
             // Use NFT data from our utility for fallback
             const nftData = getNFTData();
@@ -68,7 +67,6 @@ export const GalleryPage = () => {
         console.error("Error in gallery image loading:", error);
         setError(true);
         setLoading(false);
-        toast.error("Failed to load gallery images. Using local NFT images instead.");
         
         // Basic fallback if even the utility fails
         const basicFallbackImages = [
@@ -86,7 +84,6 @@ export const GalleryPage = () => {
       console.error("Failed to import nftImageUtils:", error);
       setError(true);
       setLoading(false);
-      toast.error("Failed to load NFT utilities. Using basic fallback images.");
       
       // Very basic fallback if even the import fails
       const veryBasicFallbackImages = Array.from({ length: 8 }, (_, i) => ({

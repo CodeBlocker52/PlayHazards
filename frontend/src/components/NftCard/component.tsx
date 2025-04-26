@@ -94,16 +94,19 @@ export const NFTCard: React.FC<Props> = ({
   };
 
   return (
-    <div style={{ border: "1px solid #2c3a43" }} className="rounded-2xl">
+    <div style={{ 
+      border: "1px solid #2c3a43",
+      margin: "0.5rem", // Reduce margin around the card
+    }} className="rounded-2xl w-[300px]">
       <div className="relative">
         <div
-          className="rounded-lg h-60"
+          className="rounded-lg h-56 w-[300px] "
           style={{
             backgroundImage: fetchedImageUrl ? `url(${fetchedImageUrl})` : "none",
             backgroundSize: "contain",
-            backgroundRepeat: "none",
+            backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
-            backgroundColor: "#1a2025", // Dark background for better visibility
+            backgroundColor: "#1a2025",
           }}
           onError={handleImageError}
         />
@@ -112,9 +115,9 @@ export const NFTCard: React.FC<Props> = ({
             <p className="text-white text-sm">Image could not be loaded</p>
           </div>
         )}
-        <div className="absolute z-10 bottom-4 left-4">
-          <p className="text-xl font-bold text-black">{name}</p>
-          <p className="text-xs text-black">{desc}</p>
+        <div className="absolute z-100 bottom-4 left-4">
+          <p className="text-xl font-bold text-white">{name}</p>
+          <p className="text-xs text-white">{desc}</p>
         </div>
         <button
           className="absolute z-10 hidden w-12 h-12 rounded-full top-4 right-4"
@@ -129,7 +132,7 @@ export const NFTCard: React.FC<Props> = ({
         }}
       />
       <div className="p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center">
           <p className="text-xs text-gray-300 uppercase">{contentLeft}</p>
           <p className="text-xs text-gray-300 uppercase">{contentRight}</p>
         </div>
