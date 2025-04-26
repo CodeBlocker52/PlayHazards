@@ -67,7 +67,6 @@ export const MainPage = () => {
           })
           .catch((err) => {
             console.log(err);
-            toast.error("Failed to load NFT data. Using local images instead.");
             
             // Use local NFT data from our utility
             const fallbackData = getNFTData();
@@ -77,7 +76,6 @@ export const MainPage = () => {
           });
       } catch (error) {
         console.error("Error in NFT data loading:", error);
-        toast.error("Failed to load NFT data. Using fallback data.");
         
         // Use fallback data when the fetch fails
         const fallbackNFTs = [
@@ -143,7 +141,7 @@ export const MainPage = () => {
       }
     }).catch(error => {
       console.error("Failed to import nftImageUtils:", error);
-      toast.error("Failed to load NFT utilities. Using basic fallback images.");
+
       
       // Basic fallback if even the utility fails
       const basicFallbackNFTs = [
@@ -223,7 +221,7 @@ export const MainPage = () => {
 
   useEffect(() => {
     console.log("balanceData", balanceData);
-    if (isBalanceReadSuccess) {
+    if (isBalanceReadSuccess && balanceData !== undefined) {
       setSynced(Number(formatEther(balanceData as bigint)));
     }
   }, [balanceData, isBalanceReadSuccess, isFetching, setCoins]);
@@ -316,9 +314,9 @@ export const MainPage = () => {
             <p className="inline-block px-4 py-2 mt-8 text-xl text-white rounded-md bg-gray-750">
               Regular
             </p>
-            <div className="mt-4 grid grid-cols-12 gap-4">
+            <div className="mt-4 grid grid-cols-12 gap-x-10 gap-y-8 animate-smooth-appear">
               {bronzeNFT.map((n, i) => (
-                <div key={n.image} className="col-span-6">
+                <div key={n.image} className="col-span-4">
                   <NFTCard
                     imageUrl={n.image}
                     name={n.name}
@@ -341,9 +339,9 @@ export const MainPage = () => {
             <p className="inline-block px-4 py-2 mt-8 text-xl text-white rounded-md bg-gray-750 silver">
               Silver
             </p>
-            <div className="mt-4 grid grid-cols-12 gap-x-4 gap-y-8 animate-smooth-appear">
+            <div className="mt-4 grid grid-cols-12 gap-x-10 gap-y-8 animate-smooth-appear">
               {silverNFT.map((n, i) => (
-                <div key={n.image} className="col-span-6">
+                <div key={n.image} className="col-span-4 ">
                   <NFTCard
                     imageUrl={n.image}
                     name={n.name}
@@ -364,9 +362,9 @@ export const MainPage = () => {
           <p className="inline-block px-4 py-2 mt-8 text-xl text-white rounded-md bg-gray-750 gold">
             Gold
           </p>
-          <div className="mt-4 grid grid-cols-12 gap-4 animate-smooth-appear">
+          <div className="mt-4 grid grid-cols-12 gap-x-10 gap-y-8 animate-smooth-appear">
             {goldNFT.map((n, i) => (
-              <div key={n.image} className="col-span-6">
+              <div key={n.image} className="col-span-4">
                 <NFTCard
                   imageUrl={n.image}
                   name={n.name}

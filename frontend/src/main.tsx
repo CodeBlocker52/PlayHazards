@@ -51,7 +51,7 @@ const evmNetworks: EvmNetwork[] = [
     chainId: 10143, // Monad Testnet chain ID
     chainName: "Monad Testnet",
     name: "Monad Testnet",
-    iconUrls: ["https://your-monad-icon-url"], // You'll need to provide an icon URL
+    iconUrls: ["https://miro.medium.com/v2/resize:fit:400/0*aRHYdVg5kllfc7Gn.jpg"], // You'll need to provide an icon URL
     nativeCurrency: { decimals: 18, name: "Monad", symbol: "MON" },
     networkId: 10143,
     privateCustomerRpcUrls: [],
