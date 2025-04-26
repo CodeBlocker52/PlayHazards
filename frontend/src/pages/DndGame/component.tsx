@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 
 // Define types for server responses
 
-
 enum MODES {
   INIT,
   GAMING,
@@ -348,21 +347,13 @@ export const DndGame: React.FC = () => {
                     value={turns}
                     min="2"
                     max="20"
+                    className="bg-white text-black"
                     onChange={(e) => setTurns(Number(e.target.value))}
                   />
                 </div>
-                <div className="field text">
+                <div className="field text flex">
                   <label htmlFor="model">AI Model:</label> &nbsp;
-                  <select
-                    id="model"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    className="bg-gray-700 text-white p-1 rounded"
-                  >
-                    <option value="llama-3.3-70b-versatile">
-                      Llama 3.3 70B
-                    </option>
-                  </select>
+                  <p> Llama 3.3 70B</p>
                 </div>
                 <div className="mx-2 mt-4">
                   <Button
