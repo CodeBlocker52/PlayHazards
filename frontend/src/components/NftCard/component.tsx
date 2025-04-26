@@ -112,12 +112,12 @@ export const NFTCard: React.FC<Props> = ({
         />
         {imageError && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-white text-sm">Image could not be loaded</p>
+            <p className="text-black text-sm">Image could not be loaded</p>
           </div>
         )}
         <div className="absolute z-100 bottom-4 left-4">
-          <p className="text-xl font-bold text-white">{name}</p>
-          <p className="text-xs text-white">{desc}</p>
+          <p className="text-xl font-bold text-black">{name}</p>
+          <p className="text-xs text-black">{desc}</p>
         </div>
         <button
           className="absolute z-10 hidden w-12 h-12 rounded-full top-4 right-4"
