@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { VerticalNavigationTemplate } from "components/VerticalNavigationTemplate";
 import { useCoinsContext } from "config/context";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 
 import { ChimpIcon } from "core";
@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 const icon = <ChimpIcon />;
 
 enum MODES {
+  Memorize,
   Question,
   Result,
 }
@@ -20,11 +21,16 @@ type PuzzleState = Record<number, number>;
 const CELLS = 25;
 const MAX_STRIKES = 3;
 const REWARD = 5;
+const MEMORIZE_TIME = 5; // 5 seconds to memorize
+const QUESTION_TIME = 10; // 10 seconds to answer
 
 export const ChimpGame = () => {
   const { setCoins } = useCoinsContext();
   const navigate = useNavigate();
   const [activeGame, setActiveGame] = useState(false);
+  const [timer, setTimer] = useState(MEMORIZE_TIME);
+  const timerRef = useRef(null);
+  const [clickedCells, setClickedCells] = useState<number[]>([]);
 
   const generatePuzzle = (cellsVisible: number): PuzzleState => {
     const cellIndices = new Array(CELLS)
@@ -43,7 +49,7 @@ export const ChimpGame = () => {
   };
 
   const [gameState, setGameState] = useState({
-    mode: MODES.Question,
+    mode: MODES.Memorize,
     strikes: 0,
     numbers: 4,
     puzzle: generatePuzzle(4),
@@ -51,21 +57,81 @@ export const ChimpGame = () => {
 
   const [target, setTarget] = useState(1);
 
-  const handleClick = (valueClicked: number) => {
+  // Timer logic
+  useEffect(() => {
+    if (!activeGame) return;
+    
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    if (gameState.mode === MODES.Memorize) {
+      setTimer(MEMORIZE_TIME);
+      timerRef.current = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            // Reset clicked cells when changing from memorize to question mode
+            setClickedCells([]);
+            setGameState(state => ({ ...state, mode: MODES.Question }));
+            return QUESTION_TIME;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else if (gameState.mode === MODES.Question) {
+      setTimer(QUESTION_TIME);
+      timerRef.current = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            // Time ran out, player loses this round
+            setGameState(state => ({
+              ...state,
+              mode: MODES.Result,
+              strikes: state.strikes + 1
+            }));
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    // Clean up timer on unmount or mode change
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [gameState.mode, activeGame]);
+
+  const handleClick = (index: number) => {
+    const valueClicked = gameState.puzzle[index];
+    
+    // Check if this is the correct cell to click
     if (valueClicked !== target) {
+      clearInterval(timerRef.current);
       setGameState((gameState) => ({
         ...gameState,
         mode: MODES.Result,
         strikes: gameState.strikes + 1,
       }));
     } else {
-      if (valueClicked === gameState.numbers) {
+      // Add this cell to the clicked cells array (so it disappears)
+      setClickedCells(prev => [...prev, index]);
+      
+      if (target === gameState.numbers) {
+        // Successfully completed this round
+        clearInterval(timerRef.current);
         setGameState((gameState) => ({
           ...gameState,
           mode: MODES.Result,
           numbers: gameState.numbers + 1,
         }));
       } else {
+        // Move to next number
         setTarget((target) => target + 1);
       }
     }
@@ -86,26 +152,31 @@ export const ChimpGame = () => {
 
   const restartGame = () => {
     setTarget(1);
-
+    clearInterval(timerRef.current);
+    setClickedCells([]);
     setGameState({
-      mode: MODES.Question,
+      mode: MODES.Memorize,
       strikes: 0,
       numbers: 4,
       puzzle: generatePuzzle(4),
     });
+    setTimer(MEMORIZE_TIME);
   };
 
   const continueGame = () => {
     setTarget(1);
-
+    clearInterval(timerRef.current);
+    setClickedCells([]);
     setGameState((gameState) => ({
       ...gameState,
       puzzle: generatePuzzle(gameState.numbers),
-      mode: MODES.Question,
+      mode: MODES.Memorize,
     }));
+    setTimer(MEMORIZE_TIME);
   };
 
   const returnToHomePage = () => {
+    clearInterval(timerRef.current);
     navigate("/main");
   };
 
@@ -142,6 +213,9 @@ export const ChimpGame = () => {
             <b>Coins per level: </b>
             {REWARD} BIT
           </p>
+          <p>
+            <b>Time: </b>5 seconds to memorize, 10 seconds to answer
+          </p>
         </div>
       </div>
     </>
@@ -151,9 +225,17 @@ export const ChimpGame = () => {
     <div className="text-center animate-smooth-appear">
       <ChimpIcon className="w-32 mx-auto text-white animate-pulse-fast" />
       <h2 className="text-4xl font-bold text-white fade">Chimpanze</h2>
-      <p className="mt-5 text-2xl text-white">
-        Click the squares in order according to their numbers.
-      </p>
+      {gameState.mode === MODES.Memorize ? (
+        <p className="mt-5 text-2xl text-white">
+          Memorize the positions of the numbers. You have {timer} seconds.
+        </p>
+      ) : (
+        <p className="mt-5 text-2xl text-white">
+          Click the squares in order starting with 1. You have {timer} seconds.
+          <br />
+          <span className="text-xl">Current number: {target}</span>
+        </p>
+      )}
       <p className="mt-2 text-2xl text-white">
         The test will get progressively harder.
       </p>
@@ -162,14 +244,31 @@ export const ChimpGame = () => {
 
   const handleGameClose = () => {
     // Reset all game state
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     setTarget(1);
+    setClickedCells([]);
     setGameState({
-      mode: MODES.Question,
+      mode: MODES.Memorize,
       strikes: 0,
       numbers: 4,
       puzzle: generatePuzzle(4),
     });
   };
+  
+  // Timer display component
+  const TimerDisplay = () => (
+    <div className="absolute bottom-4 right-4">
+      <div className={clsx(
+        "text-3xl font-bold rounded-full h-16 w-16 flex items-center justify-center",
+        timer <= 3 ? "bg-red-600 animate-pulse" : "bg-purple-800",
+        "text-white shadow-lg border-2 border-white"
+      )}>
+        {timer}
+      </div>
+    </div>
+  );
 
   return (
     <VerticalNavigationTemplate>
@@ -179,28 +278,34 @@ export const ChimpGame = () => {
         icon={icon}
         activeGame={activeGame}
         setActiveGame={setActiveGame}
-        className="px-4 py-10"
+        className="px-4 py-10 relative"
         pregameText={pregameText}
         gameDesc={gameDesc}
         onClose={handleGameClose}
       >
-        {gameState.mode === MODES.Question && (
+        {(gameState.mode === MODES.Memorize || gameState.mode === MODES.Question) && (
           <div className="w-full grid grid-cols-5 grid-rows-5 gap-2">
             {new Array(CELLS).fill(0).map((_, i) => {
               const value = gameState.puzzle[i];
-              const valueIsShown = value && value >= target;
-
+              const isActiveCell = value !== undefined;
+              const hasCellBeenClicked = clickedCells.includes(i);
+              
               return (
                 <div
                   key={i}
                   className={clsx([
                     "flex justify-center items-center h-14 w-auto font-bold border-4 rounded border-gray-300 border-opacity-50 text-white text-xl",
-                    !valueIsShown && "opacity-0",
-                    target > 1 && "bg-white",
+                    !isActiveCell && "opacity-0",
+                    gameState.mode === MODES.Question && isActiveCell && !hasCellBeenClicked && "bg-white",
+                    gameState.mode === MODES.Question && isActiveCell && hasCellBeenClicked && "opacity-0 transition-opacity duration-200",
                   ])}
-                  onClick={valueIsShown ? () => handleClick(value) : undefined}
+                  onClick={
+                    gameState.mode === MODES.Question && isActiveCell && !hasCellBeenClicked
+                      ? () => handleClick(i) 
+                      : undefined
+                  }
                 >
-                  {value}
+                  {gameState.mode === MODES.Memorize && isActiveCell ? value : ""}
                 </div>
               );
             })}
@@ -212,15 +317,12 @@ export const ChimpGame = () => {
               <div>
                 <ChimpIcon className="w-24 mx-auto" />
                 <h3 className="mb-2 text-4xl">Numbers: {gameState.numbers}</h3>
-                {/* <p className="mt-4 mb-5 text-5xl">{gameState.numbers}</p> */}
                 <h3 className="mb-5 text-4xl">
                   Reward: {gameState.numbers * REWARD} BIT coins
                 </h3>
-                {/* <p className="mt-4 mb-5 text-5xl">{gameState.numbers}</p> */}
                 <div className="mx-auto">
                   <button
                     onClick={restartGame}
-                    // className="px-4 py-3 mt-4 ml-3 font-bold text-black bg-yellow-300 rounded focus:outline-none"
                     className="px-8 py-3 mt-2 font-bold text-white rounded focus:outline-none bg-purple-950 ring-purple-800 transition-all hover:ring-2"
                   >
                     Try again
@@ -243,7 +345,6 @@ export const ChimpGame = () => {
                 </h4>
                 <button
                   onClick={continueGame}
-                  // className="px-4 py-3 mt-4 font-bold text-black rounded focus:outline-none"
                   className="px-8 py-3 mt-2 font-bold text-white rounded focus:outline-none bg-purple-950 ring-purple-800 transition-all hover:ring-2"
                 >
                   Continue
@@ -252,6 +353,10 @@ export const ChimpGame = () => {
             )}
           </div>
         )}
+        
+        {/* Timer display (only show during Memorize and Question phases) */}
+        {(gameState.mode === MODES.Memorize || gameState.mode === MODES.Question) && 
+          activeGame && <TimerDisplay />}
       </GameTemplate>
     </VerticalNavigationTemplate>
   );

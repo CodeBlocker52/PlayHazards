@@ -17,7 +17,7 @@ export const GalleryPage = () => {
     import("../../utils/nftImageUtils").then(({ getNFTData }) => {
       try {
         // First try to fetch from server with a timeout
-        fetch(server_url+"/gallery", {
+        fetch(server_url+"/api/gallery", {
           method: "GET",
           headers: {
             'Accept': 'application/json',

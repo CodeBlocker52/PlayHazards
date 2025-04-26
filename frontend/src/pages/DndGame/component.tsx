@@ -1,7 +1,7 @@
 import { useAccount } from "wagmi";
 import { VerticalNavigationTemplate } from "components/VerticalNavigationTemplate";
 import { useCoinsContext } from "config/context";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 
 import { GameTemplate } from "components/GameTemplate";
@@ -10,6 +10,7 @@ import ApiIcon from "@mui/icons-material/Api";
 import { Button, TextField, CircularProgress } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
 // Define types for server responses
 
@@ -28,6 +29,7 @@ interface Message {
 
 const icon = <ApiIcon />;
 const REWARD = 100;
+const ANSWER_TIME = 10; // 10 seconds to answer
 
 export const DndGame: React.FC = () => {
   const localTheme = createTheme({
@@ -56,6 +58,11 @@ export const DndGame: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [model, setModel] = useState("llama-3.3-70b-versatile");
   const navigate = useNavigate();
+  
+  // Timer state
+  const [timer, setTimer] = useState(ANSWER_TIME);
+  const timerRef = useRef(null);
+  const [timerActive, setTimerActive] = useState(false);
 
   const server_url = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
@@ -71,7 +78,46 @@ export const DndGame: React.FC = () => {
         return coins + REWARD;
       });
     }
-  }, [gameState.turns, setCoins]);
+  }, [gameState.turns, setCoins, turns]);
+
+  // Timer effect
+  useEffect(() => {
+    if (!activeGame || !timerActive || gameState.mode !== MODES.GAMING) {
+      // Clear timer if game is not active or timer should not be running
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+    
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    // Start a new timer
+    timerRef.current = setInterval(() => {
+      setTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          // Time ran out, auto-select first choice
+          if (choices.length > 0) {
+            setChoice(choices[0]);
+            sendUserInput(choices[0]);
+          }
+          return ANSWER_TIME;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [activeGame, timerActive, gameState.mode, choices]);
 
   // Function to extract choices from AI response if backend doesn't provide them
   const extractChoicesFromResponse = (message: string): string[] => {
@@ -117,7 +163,7 @@ export const DndGame: React.FC = () => {
       }));
       setChoice("Waiting for AI to respond...");
 
-      const data = await sendRequestWithRetry("/start", {
+      const data = await sendRequestWithRetry("/api/start", {
         gptVersion: model,
         language: "English",
         genre: "Dungeons",
@@ -141,6 +187,10 @@ export const DndGame: React.FC = () => {
         } else {
           setChoices(data.choices);
         }
+        
+        // Start the timer after choices are displayed
+        setTimer(ANSWER_TIME);
+        setTimerActive(true);
       } else {
         updateChat(
           "server",
@@ -165,20 +215,28 @@ export const DndGame: React.FC = () => {
   };
 
   // Function to send user input
-  const sendUserInput = async () => {
-    if (!choice) return;
+  const sendUserInput = async (userChoice = null) => {
+    // Stop the timer
+    setTimerActive(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    const inputToSend = userChoice || choice;
+    if (!inputToSend) return;
 
     updateChat(
       "client",
       `**You**: 
-        ${choice}`
+        ${inputToSend}`
     );
 
     let userInput;
-    if (typeof choice === "object") {
-      userInput = choice[0];
+    if (typeof inputToSend === "object") {
+      userInput = inputToSend[0];
     } else {
-      userInput = choice;
+      userInput = inputToSend;
     }
 
     try {
@@ -189,7 +247,7 @@ export const DndGame: React.FC = () => {
       }));
       setChoice("Waiting for AI to respond...");
 
-      const data = await sendRequestWithRetry("/continue", {
+      const data = await sendRequestWithRetry("/api/continue", {
         userPrompt: userInput,
         wallet_address: address,
       });
@@ -214,6 +272,10 @@ export const DndGame: React.FC = () => {
         if (data.imageUrl && !data.imageUrl.includes("placeholder.com")) {
           displayImage(data.imageUrl);
         }
+        
+        // Start the timer again after new choices are displayed
+        setTimer(ANSWER_TIME);
+        setTimerActive(true);
       } else {
         updateChat(
           "server",
@@ -250,6 +312,19 @@ export const DndGame: React.FC = () => {
       ]);
     }
   };
+
+  // Timer display component
+  const TimerDisplay = () => (
+    <div className="absolute bottom-4 right-4">
+      <div className={clsx(
+        "text-3xl font-bold rounded-full h-16 w-16 flex items-center justify-center",
+        timer <= 3 ? "bg-red-600 animate-pulse" : "bg-purple-800",
+        "text-white shadow-lg border-2 border-white"
+      )}>
+        {timer}
+      </div>
+    </div>
+  );
 
   const pregameText = (
     <>
@@ -288,6 +363,10 @@ export const DndGame: React.FC = () => {
             <b>Reward per victory: </b>
             {REWARD} BIT
           </p>
+          <p>
+            <b>Time per decision: </b>
+            {ANSWER_TIME} seconds
+          </p>
         </div>
       </div>
     </>
@@ -305,6 +384,11 @@ export const DndGame: React.FC = () => {
         Each decision will shape your fate, and the journey will grow more
         challenging with every step.
       </p>
+      {gameState.mode === MODES.GAMING && timerActive && (
+        <p className="mt-2 text-2xl text-white">
+          You have {timer} seconds to make your choice.
+        </p>
+      )}
     </div>
   );
 
@@ -319,6 +403,11 @@ export const DndGame: React.FC = () => {
     });
     setChoice("");
     setIsLoading(false);
+    setTimerActive(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
     // Keep model selection as is since it's a preference
   };
 
@@ -331,7 +420,7 @@ export const DndGame: React.FC = () => {
           icon={icon}
           activeGame={activeGame}
           setActiveGame={setActiveGame}
-          className="px-4 py-10"
+          className="px-4 py-10 relative"
           pregameText={pregameText}
           gameDesc={gameDesc}
           onClose={handleGameClose}
@@ -505,10 +594,11 @@ export const DndGame: React.FC = () => {
               </div>
             )}
           </ThemeProvider>
+          
+          {/* Timer display (only show during GAMING mode when timer is active) */}
+          {gameState.mode === MODES.GAMING && timerActive && activeGame && <TimerDisplay />}
         </GameTemplate>
       </div>
     </VerticalNavigationTemplate>
   );
-};
-
-export default DndGame;
+}

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useCoinsContext } from "config/context";
 import { useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { GameTemplate, VerticalNavigationTemplate } from "../../components";
 import { MemoryMatrixIcon } from "../../core";
@@ -73,6 +73,8 @@ export const MemoryMatrix: React.FC = () => {
   const [sequencePattern, setSequencePattern] = useState<number[]>([]);
   const [linearPattern, setLinearPattern] = useState<number>(0);
   const [displayTime, setDisplayTime] = useState(3000); // Base display time in ms
+  const [timer, setTimer] = useState(3); // Timer in seconds
+  const timerRef = useRef(null);
 
   const getRandomInt = (min: number, max: number) => {
     min = Math.ceil(min);
@@ -360,7 +362,11 @@ export const MemoryMatrix: React.FC = () => {
         ? 1.5
         : 2; // Matrix gets more time
 
-    setDisplayTime(baseTime * levelFactor * complexityFactor);
+    const newDisplayTime = baseTime * levelFactor * complexityFactor;
+    setDisplayTime(newDisplayTime);
+    
+    // Set timer in seconds (rounded up)
+    setTimer(Math.ceil(newDisplayTime / 1000));
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -415,26 +421,58 @@ export const MemoryMatrix: React.FC = () => {
     }
   }, [gameActive, level, pattern, setCoins]);
 
-  React.useEffect(() => {
-    if (!activeGame) return;
+  // Timer effect - similar to ChimpGame implementation
+// Timer effect - similar to ChimpGame implementation
+useEffect(() => {
+  if (!activeGame) return;
+  
+  // Clear any existing timer
+  if (timerRef.current) {
+    clearInterval(timerRef.current);
+  }
 
-    const displayTimeInSeconds = displayTime / 1000;
-    const intervalTime = 20; // Update every 20ms
-    const incrementPerInterval =
-      1 / (displayTimeInSeconds * (1000 / intervalTime));
+  if (gameActive === 1) {
+    // Memorize phase
+    timerRef.current = setInterval(() => {
+      setTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          setGameActive(2); // Move to question phase
+          // Set a new timer for the question phase (10 seconds)
+          setTimer(10);
+          return 0;
+        }
+        return prev - 1;
+      });
+      
+      // Update counter for progress bar
+      setCounter(prev => {
+        const newCounter = prev + (1 / (displayTime / 1000));
+        return Math.min(newCounter, 1);
+      });
+    }, 1000);
+  } else if (gameActive === 2) {
+    // Question phase - give the player 10 seconds to answer
+    timerRef.current = setInterval(() => {
+      setTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          // Time ran out, player loses
+          setGameActive(4); // Game over
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }
 
-    if (counter < 1) {
-      const timer = setTimeout(() => {
-        setCounter((c) => Math.min(c + incrementPerInterval, 1));
-      }, intervalTime);
-
-      return () => clearTimeout(timer);
+  return () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
     }
+  };
+}, [activeGame, gameActive, displayTime]);
 
-    if (counter >= 1) {
-      setGameActive(2);
-    }
-  }, [activeGame, counter, displayTime]);
 
   useEffect(() => {
     if (activeGame && gameActive === 1) {
@@ -545,6 +583,19 @@ export const MemoryMatrix: React.FC = () => {
 
     return null;
   };
+
+  // Timer display component similar to ChimpGame
+  const TimerDisplay = () => (
+    <div className="absolute bottom-4 right-4">
+      <div className={clsx(
+        "text-3xl font-bold rounded-full h-16 w-16 flex items-center justify-center",
+        timer <= 3 ? "bg-red-600 animate-pulse" : "bg-purple-800",
+        "text-white shadow-lg border-2 border-white"
+      )}>
+        {timer}
+      </div>
+    </div>
+  );
 
   let res;
 
@@ -731,11 +782,25 @@ export const MemoryMatrix: React.FC = () => {
       <p className="mt-2 text-2xl text-white">
         The test will get progressively harder with more complex patterns.
       </p>
+      {gameActive === 1 && (
+        <p className="mt-2 text-2xl text-white">
+          Memorize the pattern. You have {timer} seconds.
+        </p>
+      )}
+      {gameActive === 2 && (
+        <p className="mt-2 text-2xl text-white">
+          What did you see? You have {timer} seconds to answer.
+        </p>
+      )}
     </div>
   );
+  
 
   const handleGameClose = () => {
     // Reset all game state
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     setLevel(1);
     setGuess("");
     setInputValue("");
@@ -756,9 +821,12 @@ export const MemoryMatrix: React.FC = () => {
         pregameText={pregameText}
         gameDesc={gameDesc}
         onClose={handleGameClose}
-        className="px-4 py-10"
+        className="px-4 py-10 relative"
       >
         <div className="round-main">{res}</div>
+        
+        {/* Timer display (only show during Memorize phase) */}
+        {(gameActive === 1 || gameActive === 2) && activeGame && <TimerDisplay />}
       </GameTemplate>
     </VerticalNavigationTemplate>
   );
