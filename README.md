@@ -2,7 +2,7 @@
 
 #  PlayHazards
 
-> A Play to Earn (P2E) NFT-based gaming platform on Monad powered with Groq.
+A Play to Earn (P2E) NFT-based gaming platform on Monad powered with Groq.
 
 ---
 
