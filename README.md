@@ -41,9 +41,9 @@ On top of that, the hackathon’s time crunch meant we were racing against the c
 
 
 # On Monad
-  [BIT TOKENS CONTRACT ]: [https://testnet.monadexplorer.com/token/0x4C033EB7Baf936cF2FFED08D1C948106641095cf],
+  BIT TOKENS CONTRACT : [https://testnet.monadexplorer.com/token/0x4C033EB7Baf936cF2FFED08D1C948106641095cf],
 
-  [BRAIN NFT CONTRACT]: [https://testnet.monadexplorer.com/token/0x84156870499fb4ee52570c1263590ecf49BA6796],
+  BRAIN NFT CONTRACT: [https://testnet.monadexplorer.com/token/0x84156870499fb4ee52570c1263590ecf49BA6796],
             
 
 
