@@ -1,14 +1,15 @@
 
 
-#  PlayHazards
+# PlayHazards
 
-A Play to Earn (P2E) NFT-based gaming platform on Monad powered with Groq.
+## A Play to Earn (P2E) NFT-based gaming platform on Monad powered with Groq.
 
 ---
 
 ## 📌   Introduction
 
-**We created PlayHazards, featuring three distinct games—Dungeons & Dragons-inspired (DnD), Chimp Test, and Memory Matrix, to tackle the issue that traditional gaming offers no real-world value for players’ efforts, with in-game achievements like quest rewards or high scores trapped in the game’s ecosystem. Our Play to Earn (P2E) model lets players earn cryptocurrency tokens by completing epic quests in the DnD game, mastering cognitive challenges in Chimp Test, or excelling in pattern recognition in Memory Matrix, providing tangible rewards despite our NFTs being non-tradable. This makes gaming inclusive, especially for players in regions where it can serve as income, empowering them economically. 
+**We created PlayHazards, featuring three distinct games—Dungeons & Dragons-inspired (DnD), Chimp Test, and Memory Matrix, to tackle the issue that traditional gaming offers no real-world value for players’ efforts, with in-game achievements like quest rewards or high scores trapped in the game’s ecosystem. Our Play to Earn (P2E) model lets players earn cryptocurrency tokens by completing epic quests in the DnD game, mastering cognitive challenges in Chimp Test, or excelling in pattern recognition in Memory Matrix, providing tangible rewards despite our NFTs being non-tradable. This makes gaming inclusive, especially for players in regions where it can serve as income, empowering them economically.**
+
 
 ---
 
