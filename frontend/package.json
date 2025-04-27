@@ -25,6 +25,7 @@
     "dotenv": "^16.4.5",
     "ethers": "^6.13.4",
     "husky": "^9.1.6",
+    "isomorphic-unfetch": "^4.0.2",
     "lint-staged": "^15.2.10",
     "lucide-react": "^0.501.0",
     "next": "^15.3.0",
